@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, User, Heart, Plus } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthModal } from "@/components/Auth/AuthModal";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center space-x-4">
@@ -25,18 +34,64 @@ const Header = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon">
-            <Heart className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
-          <Button variant="cta" className="hidden sm:flex">
-            <Plus className="h-4 w-4" />
-            Post Ad
-          </Button>
+          {user ? (
+            <>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/dashboard')}
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/dashboard')}
+              >
+                <User className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="cta" 
+                className="hidden sm:flex"
+                onClick={() => navigate('/post-ad')}
+              >
+                <Plus className="h-4 w-4" />
+                Post Ad
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => {
+                  setAuthModalTab('signin');
+                  setIsAuthModalOpen(true);
+                }}
+              >
+                <User className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="cta" 
+                className="hidden sm:flex"
+                onClick={() => {
+                  setAuthModalTab('signup');
+                  setIsAuthModalOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Post Ad
+              </Button>
+            </>
+          )}
         </div>
       </div>
+      
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        defaultTab={authModalTab}
+      />
     </header>
   );
 };
